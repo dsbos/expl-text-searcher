@@ -202,22 +202,22 @@ public class TextSearcher {
         indexedText = w.toString();
         wordOccurrences = findWordOccurrences(indexedText);
         occurrenceListsByWord = indexOccurrences(indexedText, wordOccurrences);
+        // (Static methods and explicit passing are to try to be reduce chance
+        // of errors (originally and in hypothetical future refactoring).)
 	}
 
 	// Note:  Possible optimization:  If client can accept CharSequence[]
     //   instead of necessarily String[], return instances of an implementation
-    //   of CharSequence that indexes into indexedText, re-using its already
-    //   allocated character array, rather than making its own character array
-    //   to hold a copy of the substring of characterrs it presents (as
-    //   String.substring(...) does).)
-    //   - Saves array overhead and N characters for each hit result.
+    //   of CharSequence that indexes into indexedText, re-using indexedText's
+    //   already allocated character array, rather than making its own
+    //   character array to hold a copy of the substring of characters it
+    //   presents (as String.substring(...) methods do).)
+    //   - Saves array object overhead and N characters for each hit result.
     //   - Caveat:  Holding onto any such hit-result CharSequence object blocks
-    //     garbage-colllecting the possibly huge full-file-contents' String's
-    //     character array.
-
+    //     garbage-collecting indexedText's possibly huge character array.
 
     /**
-	 * 
+	 * ...
 	 * @param queryWord The word to search for in the file contents.
 	 * @param contextWords The number of words of context to provide on
 	 *                     each side of the query word.
@@ -228,13 +228,13 @@ public class TextSearcher {
         final List<Occurrence> queryWordOccurrences =
                 occurrenceListsByWord.getOrDefault(canonicalQueryWord,
                                                    Collections.emptyList());
-        // (Named values to try to make uses clearer.)
+        // (Named values to try to make semantics of uses clearer.)
         final int minOccIndex = 0;
         final int maxOccIndex = wordOccurrences.size() - 1;  // (Indexed)
         final int minTextCharOffset = 0;
         final int maxTextCharOffset = indexedText.length();  // (Used as range)
 
-        final List<String> resultsList =
+        final List<String> hitsInContext =
             queryWordOccurrences.stream().map(occurrence -> {
                 final int hitOccIndex = occurrence.getOccIndex();
 
@@ -263,12 +263,12 @@ public class TextSearcher {
                     }
                 }
 
-                String resultString = indexedText.substring(contextStartCharOffset,
+                String hitInContext = indexedText.substring(contextStartCharOffset,
                                                             contextEndCharOffset);
-                return resultString;
+                return hitInContext;
 
             }).collect(Collectors.toList());
-        return resultsList.toArray(new String[0]);
+        return hitsInContext.toArray(new String[0]);
 	}
 }
 
