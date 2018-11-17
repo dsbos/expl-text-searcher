@@ -29,8 +29,8 @@ public class TextSearcher {
     /**
       * Represents an occurrence of a word in the indexed input text.
       */
-	private static class Occurrence {
-	    private final int occIndex;
+    private static class Occurrence {
+        private final int occIndex;
         private final int startChOffset;
         private final int endChOffset;
 
@@ -42,7 +42,7 @@ public class TextSearcher {
          * @param  startChOffset  occurrence's starting character offset in input
          * @param  endChOffset    occurrence's ending character offset in input
          */
-	    public Occurrence(int occIndex, int startChOffset, int endChOffset) {
+        public Occurrence(int occIndex, int startChOffset, int endChOffset) {
             this.occIndex = occIndex;
             this.startChOffset = startChOffset;
             this.endChOffset = endChOffset;
@@ -50,11 +50,11 @@ public class TextSearcher {
         public int getOccIndex()      { return occIndex; }
         public int getStartChOffset() { return startChOffset; }
         public int getEndChOffset()   { return endChOffset; }
-	}
+    }
 
     private final String indexedText;
 
-	// Note:  Possible optimization:  Instead of storing (ArrayList) list of N
+    // Note:  Possible optimization:  Instead of storing (ArrayList) list of N
     //   occurrence objects, each with index and starting and ending character
     //   offset int values, store two int arrays, one of starting character
     //   offsets and one of ending character offsets.
@@ -104,25 +104,25 @@ public class TextSearcher {
     /** Lexing (tokenizing) state. */
     private static enum LexState { InWord, InOther }
 
-	private static List<Occurrence> findWordOccurrences(final String inputText) {
+    private static List<Occurrence> findWordOccurrences(final String inputText) {
         final List<Occurrence> occurrences = new ArrayList<>();
 
-	    int lastWordStartOffset = -1;  // (Initial value should be unused.)
+        int lastWordStartOffset = -1;  // (Initial value should be unused.)
 
         // Handle beginning of text:
         LexState lexState = LexState.InOther;  // Start not in any word.
 
         // Handle text:
-	    for (int cx = 0; cx < inputText.length(); cx++) {
+        for (int cx = 0; cx < inputText.length(); cx++) {
             final char ch = inputText.charAt(cx);
             final boolean isWordChar = isWordChar(ch);
             switch (lexState) {
-				case InOther:
-				    if (! isWordChar) {
+                case InOther:
+                    if (! isWordChar) {
                         // Not in word; a(nother) non-word char.--no-op.
                     }
                     else {
-				        // Not in word; a word character--word start.
+                        // Not in word; a word character--word start.
                         lexState = LexState.InWord;
                         lastWordStartOffset = cx;
                     }
@@ -157,7 +157,7 @@ public class TextSearcher {
     private static Map<String, List<Occurrence>> indexOccurrences(
             String inputText,
             List<Occurrence> wordOccurrences) {
-	    //?? Maybe optimize:  index each occurrence as we find occurrences, when
+        //?? Maybe optimize:  index each occurrence as we find occurrences, when
         //   characters we just scanned, and Occurrences we created, are still
         //   in CPU cache
 
@@ -177,25 +177,25 @@ public class TextSearcher {
     }
 
 
-	/**
-	 * Initializes the text searcher with the contents of a text file.
-	 * The current implementation just reads the contents into a string 
-	 * and passes them to #init().  You may modify this implementation if you need to.
-	 * 
-	 * @param f Input file.
-	 * @throws IOException
-	 */
-	public TextSearcher(File f) throws IOException {
-		FileReader r = new FileReader(f);
-		StringWriter w = new StringWriter();
-		char[] buf = new char[4096];
-		int readCount;
-		
-		while ((readCount = r.read(buf)) > 0) {
-			w.write(buf,0,readCount);
-		}
+    /**
+     * Initializes the text searcher with the contents of a text file.
+     * The current implementation just reads the contents into a string
+     * and passes them to #init().  You may modify this implementation if you need to.
+     *
+     * @param f Input file.
+     * @throws IOException
+     */
+    public TextSearcher(File f) throws IOException {
+        FileReader r = new FileReader(f);
+        StringWriter w = new StringWriter();
+        char[] buf = new char[4096];
+        int readCount;
 
-		// Note:  If original API (e.g., with init(...)) method were required,
+        while ((readCount = r.read(buf)) > 0) {
+            w.write(buf,0,readCount);
+        }
+
+        // Note:  If original API (e.g., with init(...)) method were required,
         // these three fields and initializations could be moved to a
         // subcomponent class:
 
@@ -204,9 +204,9 @@ public class TextSearcher {
         occurrenceListsByWord = indexOccurrences(indexedText, wordOccurrences);
         // (Static methods and explicit passing are to try to be reduce chance
         // of errors (originally and in hypothetical future refactoring).)
-	}
+    }
 
-	// Note:  Possible optimization:  If client can accept CharSequence[]
+    // Note:  Possible optimization:  If client can accept CharSequence[]
     //   instead of necessarily String[], return instances of an implementation
     //   of CharSequence that indexes into indexedText, re-using indexedText's
     //   already allocated character array, rather than making its own
@@ -217,13 +217,13 @@ public class TextSearcher {
     //     garbage-collecting indexedText's possibly huge character array.
 
     /**
-	 * ...
-	 * @param queryWord The word to search for in the file contents.
-	 * @param contextWords The number of words of context to provide on
-	 *                     each side of the query word.
-	 * @return One context string for each time the query word appears in the file.
-	 */
-	public String[] search(String queryWord, int contextWords) {
+     * ...
+     * @param queryWord The word to search for in the file contents.
+     * @param contextWords The number of words of context to provide on
+     *                     each side of the query word.
+     * @return One context string for each time the query word appears in the file.
+     */
+    public String[] search(String queryWord, int contextWords) {
         final String canonicalQueryWord = canonicalizeWord(queryWord);
         final List<Occurrence> queryWordOccurrences =
                 occurrenceListsByWord.getOrDefault(canonicalQueryWord,
@@ -269,8 +269,6 @@ public class TextSearcher {
 
             }).collect(Collectors.toList());
         return hitsInContext.toArray(new String[0]);
-	}
+    }
 }
-
-// Any needed utility classes can just go in this file
 
