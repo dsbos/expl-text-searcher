@@ -92,6 +92,8 @@ public class TextSearcher {
         return occurrenceForm.toLowerCase();
     }
 
+    /** Lexing (tokenizing) state. */
+    private static enum LexState { InWord, InOther }
 
     private static void addOccurrence(final List<Occurrence> occurrences,
                                       final int startChOffset,
@@ -101,9 +103,10 @@ public class TextSearcher {
         occurrences.add(new Occurrence(occOffset, startChOffset, endCharOffset));
     }
 
-    /** Lexing (tokenizing) state. */
-    private static enum LexState { InWord, InOther }
-
+    /**
+     * Parses input text into list of locations of word occurrences in input
+     * text.
+     */
     private static List<Occurrence> findWordOccurrences(final String inputText) {
         final List<Occurrence> occurrences = new ArrayList<>();
 
@@ -154,12 +157,22 @@ public class TextSearcher {
         return Collections.unmodifiableList(occurrences);
     }
 
+    // Note:  Possible optimization:  Index each occurrence when we find each
+    //   occurrence, when the characters we just scanned, and the Occurrence we
+    //   just created, are still in CPU cache, rather than doing the indexing
+    //   in a second pass, when those characters and that Occurrence are more
+    //   likely to have been evicted from the cache.
+
+    /**
+     * Creates index of given word occurrences in given corresponding text.
+     * @param  inputText        base text corresponding to given occurrence
+     *                            locations
+     * @param  wordOccurrences  given occurrence locations
+     * @return
+     */
     private static Map<String, List<Occurrence>> indexOccurrences(
             String inputText,
             List<Occurrence> wordOccurrences) {
-        //?? Maybe optimize:  index each occurrence as we find occurrences, when
-        //   characters we just scanned, and Occurrences we created, are still
-        //   in CPU cache
 
         final Map<String, List<Occurrence>> occurrencesByWord = new HashMap<>();
 
